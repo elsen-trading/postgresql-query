@@ -98,16 +98,23 @@ deriveEntity opts tname = do
         idname = tnames ++ "Id"
         unidname = "get" ++ idname
         idtype = ConT (eoIdType opts)
-#if MIN_VERSION_template_haskell(2,11,0)
+#if MIN_VERSION_template_haskell(2,12,0)
+        idcon = RecC (mkName idname)
+                [(mkName unidname, Bang NoSourceUnpackedness NoSourceStrictness, idtype)]
+        iddec = NewtypeInstD [] entityIdName [ConT tname] Nothing
+                idcon [DerivClause Nothing (map ConT $ eoDeriveClasses opts)]
+#else
+  #if MIN_VERSION_template_haskell(2,11,0)
         idcon = RecC (mkName idname)
                 [(mkName unidname, Bang NoSourceUnpackedness NoSourceStrictness, idtype)]
         iddec = NewtypeInstD [] entityIdName [ConT tname] Nothing
                 idcon (map ConT $ eoDeriveClasses opts)
-#else
+  #else
         idcon = RecC (mkName idname)
                 [(mkName unidname, NotStrict, idtype)]
         iddec = NewtypeInstD [] entityIdName [ConT tname]
                 idcon (eoDeriveClasses opts)
+  #endif
 #endif
         tblName = eoTableName opts $ pack tnames
         fldNames = map (eoColumnNames opts . pack . nameBase)
