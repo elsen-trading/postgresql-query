@@ -14,6 +14,8 @@ module Database.PostgreSQL.Query.Entity.Functions
   , pgSelectCount
   ) where
 
+import Control.Monad.Fail ( MonadFail )
+
 import Data.Int ( Int64 )
 import Database.PostgreSQL.Query.Entity.Class
 import Database.PostgreSQL.Query.Entity.Internal
@@ -271,7 +273,7 @@ pgQueryEntities q =
 
 pgSelectCount
   :: forall m a q
-   . ( Entity a, MonadPostgres m, MonadLogger m, ToSqlBuilder q )
+   . ( Entity a, MonadFail m, MonadPostgres m, MonadLogger m, ToSqlBuilder q )
   => Proxy a
   -> q
   -> m Integer
